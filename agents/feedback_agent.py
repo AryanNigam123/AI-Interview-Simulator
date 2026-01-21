@@ -9,26 +9,39 @@ clear, actionable interview feedback.
 
 
 def generate_feedback(evaluation: dict) -> dict:
+    # Guard: evaluation failure
+    if (
+        evaluation.get("technical_accuracy") == 0
+        and "failed" in evaluation.get("strengths", "").lower()
+    ):
+        return {
+            "overall_summary": (
+                "The system could not reliably evaluate the response. "
+                "Please try again with a more detailed answer."
+            )
+        }
+
     prompt = f"""
 You are an experienced technical interviewer providing feedback.
 
-Evaluation Scores:
-- Technical Accuracy: {evaluation["technical_accuracy"]}/5
-- Completeness: {evaluation["completeness"]}/5
-- Clarity: {evaluation["clarity"]}/5
-- Communication: {evaluation["communication"]}/5
+Evaluation Summary:
+- Technical Accuracy: {evaluation.get("technical_accuracy", 0)}/5
+- Completeness: {evaluation.get("completeness", 0)}/5
+- Clarity: {evaluation.get("clarity", 0)}/5
+- Communication: {evaluation.get("communication", 0)}/5
 
 Identified Strengths:
-{evaluation["strengths"]}
+{evaluation.get("strengths", "")}
 
 Identified Gaps:
-{evaluation["gaps"]}
+{evaluation.get("gaps", "")}
 
 Instructions:
 - Be constructive and encouraging
 - Do NOT repeat numeric scores
 - Focus on improvement, not judgment
-- Return feedback in plain text sections
+- Avoid technical jargon unless necessary
+- Return clear, concise feedback
 
 Provide:
 1. Overall Summary (2–3 sentences)
@@ -37,8 +50,16 @@ Provide:
 4. Suggested Next Steps
 """
 
-    response = call_llm(prompt).strip()
+    response = call_llm(prompt)
+
+    if not response:
+        return {
+            "overall_summary": (
+                "Feedback could not be generated at this time. "
+                "Please try again later."
+            )
+        }
 
     return {
-        "overall_summary": response
+        "overall_summary": response.strip()
     }
