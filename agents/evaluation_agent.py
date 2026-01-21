@@ -16,7 +16,15 @@ EVALUATION_RUBRIC = {
 }
 
 
+def _clamp_score(value) -> int:
+    try:
+        return max(0, min(5, int(value)))
+    except Exception:
+        return 0
+
+
 def evaluate_answer(question: str, answer: str) -> dict:
+    # Guard: empty or too short answer
     if not answer or len(answer.strip()) < 10:
         return {
             "technical_accuracy": 0,
@@ -59,5 +67,26 @@ Expected JSON format:
 }}
 """
 
-    response = call_llm(prompt).strip()
-    return json.loads(response)
+    raw_response = call_llm(prompt)
+
+    try:
+        data = json.loads(raw_response)
+
+        return {
+            "technical_accuracy": _clamp_score(data.get("technical_accuracy")),
+            "completeness": _clamp_score(data.get("completeness")),
+            "clarity": _clamp_score(data.get("clarity")),
+            "communication": _clamp_score(data.get("communication")),
+            "strengths": data.get("strengths", ""),
+            "gaps": data.get("gaps", "")
+        }
+
+    except Exception:
+        return {
+            "technical_accuracy": 0,
+            "completeness": 0,
+            "clarity": 0,
+            "communication": 0,
+            "strengths": "Evaluation failed due to malformed LLM output.",
+            "gaps": "Unable to reliably assess the response."
+        }
