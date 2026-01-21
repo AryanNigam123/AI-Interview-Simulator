@@ -31,7 +31,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # --------------------------------------------------
-# Sidebar (Neutral, technical)
+# Sidebar
 # --------------------------------------------------
 with st.sidebar:
     st.header("About")
@@ -40,7 +40,6 @@ with st.sidebar:
         "Generative AI backend. It generates role-specific questions, "
         "evaluates answers, and provides structured feedback."
     )
-
     st.markdown("---")
     st.caption("Architecture: Controller + Agent-based LLM design")
 
@@ -49,8 +48,8 @@ with st.sidebar:
 # --------------------------------------------------
 st.title("AI Interview Simulator")
 st.caption(
-    "A lightweight application for practicing interview questions "
-    "with AI-based evaluation"
+    "Practice interview questions with AI-based evaluation "
+    "and actionable feedback"
 )
 st.divider()
 
@@ -76,7 +75,7 @@ with col2:
 st.divider()
 
 # --------------------------------------------------
-# Session State
+# Session State Initialization
 # --------------------------------------------------
 if "question" not in st.session_state:
     st.session_state.question = None
@@ -94,7 +93,7 @@ if st.button("Generate Interview Question", use_container_width=True):
     st.session_state.feedback = None
 
 # --------------------------------------------------
-# Question + Answer
+# Question & Answer Section
 # --------------------------------------------------
 if st.session_state.question:
     st.subheader("Interview Question")
@@ -116,15 +115,27 @@ if st.session_state.question:
         )
 
 # --------------------------------------------------
-# Evaluation Output
+# Evaluation Output (CLEAN DISPLAY)
 # --------------------------------------------------
 if st.session_state.evaluation:
+    eval_data = st.session_state.evaluation
+
     st.subheader("Evaluation")
-    st.text(st.session_state.evaluation)
+
+    st.write(f"**Technical Accuracy:** {eval_data['technical_accuracy']} / 5")
+    st.write(f"**Completeness:** {eval_data['completeness']} / 5")
+    st.write(f"**Clarity:** {eval_data['clarity']} / 5")
+    st.write(f"**Communication:** {eval_data['communication']} / 5")
+
+    st.markdown("**Strengths**")
+    st.write(eval_data["strengths"])
+
+    st.markdown("**Gaps**")
+    st.write(eval_data["gaps"])
 
 # --------------------------------------------------
-# Feedback Output
+# Feedback Output (MARKDOWN RENDERED)
 # --------------------------------------------------
 if st.session_state.feedback:
     st.subheader("Feedback")
-    st.text(st.session_state.feedback)
+    st.markdown(st.session_state.feedback["overall_summary"])
