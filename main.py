@@ -1,6 +1,8 @@
 from agents.question_agent import generate_question
 from agents.evaluation_agent import evaluate_answer
 from agents.feedback_agent import generate_feedback
+from core.display import display_evaluation, display_feedback
+
 
 def main():
     role = input("Enter role (e.g. Software Engineer): ")
@@ -13,12 +15,11 @@ def main():
     answer = input("\nYour Answer: ")
 
     evaluation = evaluate_answer(question, answer)
-    print("\nEvaluation:")
-    print(evaluation)
+    display_evaluation(evaluation)
 
     feedback = generate_feedback(evaluation)
-    print("\nFinal Feedback:")
-    print(feedback)
+    display_feedback(feedback)
+
 
 if __name__ == "__main__":
     main()
